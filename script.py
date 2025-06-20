@@ -41,10 +41,17 @@ tsv_header_name = list((df.columns))[0:]
 
 each_row = [df.loc[:,str(list((df.columns))[0])]]
 
-def is_continous(filtered_list):
-    for elem in filtered_list:
+def is_continous(trait):
+    data = (list(df.loc[:,str(trait)]))
+    #filter out missing values
+    filter_nan = [x for x in data if not np.isnan(x)]
+    unique_elements = set()
+    for elem in filter_nan:
         if (type(elem)== bool):
             return False
+        unique_elements.add(elem)
+    if (len(unique_elements)<=2):
+        return False
     return True
 #shows plot while code is running
 def show_plot(old_data,new_data):
