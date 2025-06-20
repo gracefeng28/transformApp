@@ -9,11 +9,11 @@ import matplotlib.pyplot as plt
 import shutil
 import sys
 
-#input validation
-#should be in the form "[program] [sample file] [type of transformation]"
-#if none provided, default to box cox
-test_file_name = "GWAS_Ionomics_Phenotype.txt" #default data
+#input validation (should be in the form: [program] [sample file] [type of transformation])
+#if none provided, default to box cox and provided dataset
+test_file_name = "GWAS_Ionomics_Phenotype.txt" 
 normalization_type = "box_cox"
+
 if (len(sys.argv)==3):
     if (os.path.exists(sys.argv[1])):
         test_file_name = sys.argv[1]
@@ -27,7 +27,7 @@ if (len(sys.argv)==3):
         normalization_type = sys.argv[2].lower();
 if (os.path.isdir("plots/")== False): 
     os.mkdir("plots/")
-#uncomment if you want to delete all the plot files
+#uncomment if you want to delete all the plot files after each run
 #else: 
     #shutil.rmtree("plots/")
     #os.mkdir("plots/")
@@ -38,17 +38,18 @@ cols = list((df.columns))[1:]
 
 output_tsv = "outputs/" + normalization_type+".tsv"
 tsv_header_name = list((df.columns))[0:]
-each_row = [df.loc[:,"Genotype ID"]]
+
+each_row = [df.loc[:,str(list((df.columns))[0])]]
 
 def is_continous(filtered_list):
     for elem in filtered_list:
         if (type(elem)== bool):
             return False
-        
     return True
+#shows plot while code is running
 def show_plot(old_data,new_data):
     transformed_df = pd.DataFrame({'count':new_data})
-    old_df = pd.DataFrame( {'count':old_data})
+    old_df = pd.DataFrame({'count':old_data})
     sns.displot(old_df)
     sns.displot(transformed_df)
     plt.show()
@@ -100,6 +101,7 @@ def run_log(trait):
     save_plot(filter_nan, trait,"old", "log")
     save_plot(log_output, trait,"new", "log")
     each_row.append(log_output)
+
 print(f"Performing {normalization_type } transformation on {test_file_name}")
 #call transformation for each row
 for col in cols:
@@ -114,6 +116,9 @@ for col in cols:
             run_log(col)
     else:
         print("Could not process the following trait (not continuous): " + col)
+        #add column to output tsv without transforming
+        bin_data = (df.loc[:,str(col)])
+        each_row.append(bin_data)
 
 #rotate rows to become columns
 each_row_df = pd.DataFrame(each_row)
