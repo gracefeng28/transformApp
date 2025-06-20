@@ -36,7 +36,7 @@ if (os.path.isdir("plots/")== False):
 df = pd.read_csv(test_file_name, delimiter= "\t")
 cols = list((df.columns))[1:]
 
-output_tsv = normalization_type+".tsv"
+output_tsv = "outputs/" + normalization_type+".tsv"
 tsv_header_name = list((df.columns))[0:]
 each_row = [df.loc[:,"Genotype ID"]]
 
